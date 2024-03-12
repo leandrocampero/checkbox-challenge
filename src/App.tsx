@@ -1,17 +1,40 @@
-import { ChangeEvent, useMemo, useState } from 'react'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import countries from './assets/countries.json'
 import './App.css'
 
 const SELECT_ALL_KEY = 'all'
 
 function App() {
-  const [isAllSelected, selectAll] = useState(false)
+  const [isAllSelected, setAllSelected] = useState(false)
+  const [selectedCountries, setSelectedCountries] = useState<
+    Map<string, boolean>
+  >(new Map())
+
+  function handleSelect(key: string, selected: boolean) {
+    const newMap = new Map(selectedCountries)
+    newMap.set(key, selected)
+    setSelectedCountries(newMap)
+  }
+
+  function selectAll() {
+    const newMap = new Map(countries.map((country) => [country, true]))
+    setAllSelected(true)
+    setSelectedCountries(newMap)
+  }
 
   function handleClick(e: ChangeEvent<HTMLInputElement>, key: string) {
     if (key === SELECT_ALL_KEY) {
-      selectAll(e.target.checked)
+      if (e.target.checked) {
+        selectAll()
+      } else {
+        setAllSelected(false)
+      }
     } else {
-      selectAll(false)
+      if (!e.target.checked) {
+        setAllSelected(false)
+      }
+
+      handleSelect(key, e.target.checked)
     }
   }
 
@@ -22,7 +45,8 @@ function App() {
           <input
             type="checkbox"
             id="check-all"
-            onChange={(event) => handleClick(event, 'all')}
+            checked={isAllSelected}
+            onChange={(event) => handleClick(event, SELECT_ALL_KEY)}
           />
           <span className="ml-1">{'Select All'}</span>
         </label>
@@ -32,8 +56,8 @@ function App() {
             <input
               type="checkbox"
               id={`check-${item}`}
+              checked={selectedCountries.get(item)}
               onChange={(event) => handleClick(event, item)}
-              checked={isAllSelected ? true : undefined}
             />
             <span className="ml-1">{item}</span>
           </label>
