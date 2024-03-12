@@ -5,10 +5,28 @@ import './App.css'
 const SELECT_ALL_KEY = 'all'
 
 function App() {
-  const [isAllSelected, setAllSelected] = useState(false)
+  const [selectAllChecked, setSelectAllChecked] = useState(false)
   const [selectedCountries, setSelectedCountries] = useState<
     Map<string, boolean>
   >(new Map())
+  const allSelected = useMemo(() => {
+    let control = true
+
+    if (
+      selectedCountries.size === 0 ||
+      selectedCountries.size < countries.length
+    ) {
+      control = false
+    } else {
+      selectedCountries.forEach((value) => {
+        if (!value) {
+          control = false
+        }
+      })
+    }
+
+    return control
+  }, [selectedCountries])
 
   function handleSelect(key: string, selected: boolean) {
     const newMap = new Map(selectedCountries)
@@ -16,27 +34,32 @@ function App() {
     setSelectedCountries(newMap)
   }
 
-  function selectAll() {
+  function handleSelectAll() {
     const newMap = new Map(countries.map((country) => [country, true]))
-    setAllSelected(true)
+    setSelectAllChecked(true)
     setSelectedCountries(newMap)
+  }
+
+  function handleDiselectAll() {
+    setSelectAllChecked(false)
+    setSelectedCountries(new Map())
   }
 
   function handleClick(e: ChangeEvent<HTMLInputElement>, key: string) {
     if (key === SELECT_ALL_KEY) {
       if (e.target.checked) {
-        selectAll()
+        handleSelectAll()
       } else {
-        setAllSelected(false)
+        handleDiselectAll()
       }
     } else {
-      if (!e.target.checked) {
-        setAllSelected(false)
-      }
-
       handleSelect(key, e.target.checked)
     }
   }
+
+  useEffect(() => {
+    setSelectAllChecked(allSelected)
+  }, [allSelected])
 
   return (
     <main className="h-screen w-screen bg-slate-800 p-10 flex justify-center items-center">
@@ -45,7 +68,7 @@ function App() {
           <input
             type="checkbox"
             id="check-all"
-            checked={isAllSelected}
+            checked={selectAllChecked}
             onChange={(event) => handleClick(event, SELECT_ALL_KEY)}
           />
           <span className="ml-1">{'Select All'}</span>
