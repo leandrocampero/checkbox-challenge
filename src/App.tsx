@@ -1,34 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { ChangeEvent, useState } from 'react'
+import countries from './assets/countries.json'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+function handleClick(e: ChangeEvent<HTMLInputElement>) {
+  console.log(e.target.checked)
+}
 
+function App() {
   return (
-    <>
-      <div className="flex justify-center">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main className="h-screen w-screen bg-slate-800 p-10 flex justify-center items-center">
+      <div className="flex flex-col">
+        {countries.map((item, index) => (
+          <label
+            key={`check-${item}`}
+            className={`cursor-pointer ${index > 0 ? 'mt-3' : ''}`}
+          >
+            <input
+              type="checkbox"
+              id={`check-${item}`}
+              onChange={(event) => handleClick(event)}
+            />
+            <span className="ml-1">{item}</span>
+          </label>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </main>
   )
 }
 
